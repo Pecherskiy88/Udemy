@@ -1,14 +1,52 @@
 const game = {
+  canvas: null,
+  ctx: null,
+  board: null,
+  snake: null,
+  width: 640,
+  height: 360,
+  sprites: {
+    background: null,
+    cell: null,
+    body: null,
+  },
   start() {
-    const canvas = document.getElementById('mycanvas');
-    const ctx = canvas.getContext('2d');
+    this.init();
+    this.preload(() => {
+      this.run();
+    });
+  },
+  init() {
+    this.canvas = document.getElementById('mycanvas');
+    this.ctx = this.canvas.getContext('2d');
+  },
+  preload(callback) {
+    let loaded = 0;
+    const required = Object.keys(this.sprites).length;
 
-    const background = new Image();
-    background.src = 'img/background.png';
-    background.addEventListener('load', () => {
-      window.requestAnimationFrame(() => {
-        ctx.drawImage(background, 0, 0);
-      });
+    const assetLoad = () => {
+      ++loaded;
+
+      if (loaded >= required) {
+        // когда все спрайты будут загружены
+        callback();
+      }
+    };
+
+    for (let key in this.sprites) {
+      this.sprites[key] = new Image();
+      this.sprites[key].src = 'img/' + key + '.png';
+      this.sprites[key].addEventListener('load', assetLoad);
+    }
+  },
+  run() {
+    this.board.create();
+    this.snake.create();
+
+    window.requestAnimationFrame(() => {
+      this.ctx.drawImage(this.sprites.background, 0, 0);
+      this.board.render();
+      this.snake.render();
     });
   },
 };
