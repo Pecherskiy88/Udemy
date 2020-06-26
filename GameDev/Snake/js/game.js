@@ -2,6 +2,7 @@ const game = {
   canvas: null,
   ctx: null,
   board: null,
+  snake: null,
   width: 0,
   height: 0,
   dimensions: {
@@ -17,7 +18,13 @@ const game = {
   sprites: {
     background: null,
     cell: null,
+    head: null,
     body: null,
+    food: null,
+    bomb: null,
+  },
+  random(min, max) {
+    return Math.floor(Math.random() * (max + 1) - min) + min;
   },
   start() {
     this.init();
@@ -82,11 +89,22 @@ const game = {
       this.sprites[key].addEventListener('load', onAssetLoad);
     }
   },
-  run() {
+  create() {
+    // создание игровых объектов
     this.board.create();
     this.snake.create();
-
+    this.board.createFood();
+    this.board.createBomb();
+    // установка игровых событий
+    window.addEventListener('keydown', (e) => {
+      this.snake.start(e.keyCode);
+    });
+  },
+  render() {
+    // отрисовка игровых объектов
     window.requestAnimationFrame(() => {
+      // перед тем как отрисовать новый кадр, необходимо очистить предыдущий.
+      this.ctx.clearRect(0, 0, this.width, this.height);
       this.ctx.drawImage(
         this.sprites.background,
         (this.width - this.sprites.background.width) / 2,
@@ -95,6 +113,31 @@ const game = {
       this.board.render();
       this.snake.render();
     });
+  },
+  update() {
+    this.snake.move();
+    this.render();
+  },
+  run() {
+    this.create();
+    // каждый 150мс двигать змею и отрисовывать новый кадр
+    this.gameInterval = setInterval(() => {
+      this.update();
+    }, 150);
+
+    // каждые 3с создаем бомбу
+    this.bombInterval = setInterval(() => {
+      if (this.snake.moving) {
+        this.board.createBomb();
+      }
+    }, 3000);
+  },
+  stop() {
+    clearInterval(this.gameInterval);
+    clearInterval(this.bombInterval);
+
+    alert('Game Over');
+    window.location.reload();
   },
 };
 
