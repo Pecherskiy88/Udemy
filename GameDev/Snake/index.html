@@ -10,7 +10,6 @@
         padding: 0;
       }
       canvas {
-        width: 100%;
         position: absolute;
         top: 50%;
         left: 50%;
@@ -20,10 +19,23 @@
         -moz-transform: translate(-50%, -50%);
         -webkit-transform: translate(-50%, -50%);
       }
+      @font-face {
+        font-family: 'Cactus';
+        src: url('fonts/Cactus.otf');
+      }
+      .fontPreload {
+        font-family: 'Cactus';
+        position: absolute;
+        left: -100px;
+      }
     </style>
   </head>
   <body>
-    <canvas id="mycanvas" width="640" height="360"></canvas>
+    <!-- костыль для предзагрузки шрифта -->
+    <div class="fontPreload">.</div>
+    <canvas id="mycanvas"></canvas>
     <script src="js/game.js" type="text/javascript"></script>
+    <script src="js/board.js" type="text/javascript"></script>
+    <script src="js/snake.js" type="text/javascript"></script>
   </body>
 </html>
