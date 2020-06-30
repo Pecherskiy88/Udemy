@@ -8,11 +8,17 @@ class GameScene extends Phaser.Scene {
     // 1. загрузить бекграунд
     this.load.image('bg', 'assets/sprites/background.png');
     this.load.image('card', 'assets/sprites/card.png');
+    this.load.image('card1', 'assets/sprites/card1.png');
+    this.load.image('card2', 'assets/sprites/card2.png');
+    this.load.image('card3', 'assets/sprites/card3.png');
+    this.load.image('card4', 'assets/sprites/card4.png');
+    this.load.image('card5', 'assets/sprites/card5.png');
   }
 
   create() {
     this.createBackground();
     this.createCards();
+    this.openedCard = null;
   }
 
   createBackground() {
@@ -23,9 +29,36 @@ class GameScene extends Phaser.Scene {
   createCards() {
     this.cards = [];
     const positions = this.getCardPosition();
-    for (let position of positions) {
-      this.cards.push(new Card(this, position));
+    Phaser.Utils.Array.Shuffle(positions);
+
+    for (let value of config.cards) {
+      for (let i = 0; i < 2; i++) {
+        this.cards.push(new Card(this, value, positions.pop()));
+      }
     }
+
+    this.input.on('gameobjectdown', this.onCardClicked, this); // слушатель
+  }
+
+  onCardClicked(pointer, card) {
+    if (card.opened) {
+      return false;
+    }
+    if (this.openedCard) {
+      // уже есть открытая карты
+      if (this.openedCard.value === card.value) {
+        // картинки равны - запомнить
+        this.openedCard = null;
+      } else {
+        // картинки разные - скрыть прошлую
+        this.openedCard.close();
+        this.openedCard = card;
+      }
+    } else {
+      // еще нет открытой карты
+      this.openedCard = card;
+    }
+    card.open();
   }
 
   getCardPosition() {
